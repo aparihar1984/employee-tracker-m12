@@ -66,3 +66,40 @@ function start() {
             }
         });
 }
+
+// Function to view departments
+function viewAllDepartments() {
+    const query = "SELECT * FROM departments";
+    db.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        start();
+    });
+}
+
+// Function to view roles
+function viewAllRoles() {
+    const query = "SELECT roles.title, roles.id, departments.department_name, roles.salary FROM roles JOIN departments on roles.department_id = departments.id";
+    db.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        start();
+    });
+}
+
+// Function to view employees
+function viewAllEmployees() {
+    const query = `
+    SELECT e.id, e.first_name, e.last_name, r.title AS role, d.department_name AS department, r.salary, 
+    CONCAT(m.first_name, ' ', m.last_name) AS manager_name 
+    FROM employee e
+    LEFT JOIN employee m ON e.manager_id = m.id 
+    INNER JOIN roles r ON e.role_id = r.id 
+    INNER JOIN departments d ON r.department_id = d.id;
+    `;
+    db.query(query, (err, res) => {
+        if (err) throw err;
+        console.table(res);
+        start();
+    });
+}
