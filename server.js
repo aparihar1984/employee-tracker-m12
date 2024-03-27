@@ -1,4 +1,4 @@
-// Import and require inquirer and mysql2
+// Import and require both inquirer and mysql2
 const inquirer = require("inquirer");
 const mysql = require("mysql2");
 
@@ -6,13 +6,16 @@ const mysql = require("mysql2");
 const db = mysql.createConnection({
     host: "localhost",
     port: 3306,
+    // MySQL Username
     user: "root",
-    password: "",
+    // MySQL Password
+    password: "1977BlueJays!",
     database: "employeeTracker_db",
 });
 
 // Connecting to the database
 db.connect((err) => {
+    // If statement used in case of an error.  If there are no errors, the application will start.
     if (err) throw err;
     console.log("Connected to the Employee Tracker Database!");
     // Starting the application
@@ -21,6 +24,7 @@ db.connect((err) => {
 
 // Function to Start SQL Employee Tracker Application
 function start() {
+    // Prompt for the user to select what they would like to do out of a list of choices
     inquirer.prompt({
             type: "list",
             name: "action",
@@ -36,6 +40,7 @@ function start() {
                 "Exit",
             ],
         })
+        // Actions taken based on which choice the user makes
         .then((answer) => {
             switch (answer.action) {
                 case "View all departments":
@@ -79,6 +84,7 @@ function viewAllDepartments() {
 
 // Function to view roles
 function viewAllRoles() {
+    // Using JOIN to combine rows from multiple table based on a realted column
     const query = "SELECT roles.title, roles.id, departments.department_name, roles.salary FROM roles JOIN departments on roles.department_id = departments.id";
     db.query(query, (err, res) => {
         if (err) throw err;
@@ -89,6 +95,8 @@ function viewAllRoles() {
 
 // Function to view employees
 function viewAllEmployees() {
+    // CONCAT is used to combine the first and last names
+    // Employee shortened to e, role shortened to r and department shortened to d for clarity purposes
     const query = `
     SELECT e.id, e.first_name, e.last_name, r.title AS role, d.department_name AS department, r.salary, 
     CONCAT(m.first_name, ' ', m.last_name) AS manager_name 
@@ -127,6 +135,7 @@ function addDepartment() {
 
 // Function to add a role
 function addRole() {
+    // Using the SELECT * FROM to add a new entry (role) to the departments table
     const query = "SELECT * FROM departments";
     db.query(query, (err, res) => {
         if (err) throw err;
@@ -154,6 +163,7 @@ function addRole() {
                 const department = res.find(
                     (department) => department.name === answers.department
                 );
+                // Inserting the user entries for the new role, salary and department into the database
                 const query = "INSERT INTO roles SET ?";
                 db.query(
                     query,
@@ -164,6 +174,7 @@ function addRole() {
                     },
                     (err, res) => {
                         if (err) throw err;
+                        // Displaying the addition of the new role and its details in the terminal
                         console.log(
                             `Added role ${answers.title} with salary ${answers.salary} to the ${answers.department} department in the database!`
                         );
